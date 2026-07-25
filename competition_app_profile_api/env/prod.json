@@ -1,0 +1,6 @@
+{
+  "ENV_NAME": "prod",
+  "API_BASE_URL": "https://api.your-backend.example.com",
+  "ENABLE_NETWORK_LOGGING": false,
+  "LOG_LEVEL": "warning"
+}

@@ -1,0 +1,68 @@
+name: competition_app
+description: Flutter app for the Competition API (Clean Architecture)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^14.2.7
+
+  # Dependency injection
+  get_it: ^7.7.0
+
+  # Networking
+  dio: ^5.4.3+1
+
+  # Functional error handling (Either/Failure)
+  dartz: ^0.10.1
+
+  # Value equality for entities/models
+  equatable: ^2.0.5
+
+  # Connectivity check (used by NetworkInfo)
+  connectivity_plus: ^6.0.3
+
+  # Secure local storage (auth token)
+  flutter_secure_storage: ^9.2.2
+
+  # Date formatting
+  intl: ^0.19.0
+
+  # Cashfree Payment Gateway — Web Checkout (WebView-based) SDK used by
+  # the `payment` feature to collect competition entry fees. Order
+  # creation/verification happen server-side (see ApiConstants.paymentOrders);
+  # this SDK only drives the client-side checkout UI once the backend hands
+  # back a `payment_session_id`. See features/payment/data/services/
+  # cashfree_checkout_service.dart and the README's "Payments (Cashfree)"
+  # section for native setup (iOS Info.plist, Android minSdk 19+).
+  flutter_cashfree_pg_sdk: ^2.4.0+52
+
+  # Socket.IO client — used by the `matchmaking` feature for real-time
+  # Waiting Queue updates (position/players-ahead/wait-time/status)
+  # pushed from the backend instead of purely polled. See
+  # features/matchmaking/data/services/matchmaking_socket_service.dart.
+  # `GetMatchmakingStatus` polling remains as a fallback for when the
+  # socket can't connect (see WaitingQueuePage).
+  socket_io_client: ^2.0.3+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.11
+
+flutter:
+  uses-material-design: true
+  # assets:
+  #   - assets/

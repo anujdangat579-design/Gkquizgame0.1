@@ -1,0 +1,6 @@
+{
+  "ENV_NAME": "dev",
+  "API_BASE_URL": "https://dev-api.your-backend.example.com",
+  "ENABLE_NETWORK_LOGGING": true,
+  "LOG_LEVEL": "debug"
+}

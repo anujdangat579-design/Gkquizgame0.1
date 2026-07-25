@@ -1,0 +1,6 @@
+{
+  "ENV_NAME": "staging",
+  "API_BASE_URL": "https://staging-api.your-backend.example.com",
+  "ENABLE_NETWORK_LOGGING": true,
+  "LOG_LEVEL": "info"
+}
