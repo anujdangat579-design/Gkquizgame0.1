@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: project/frontend
+        working-directory: project
 
     steps:
       - name: Checkout repository
@@ -36,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: project/frontend/build/app/outputs/flutter-apk/app-release.apk
+          path: project/build/app/outputs/flutter-apk/app-release.apk
