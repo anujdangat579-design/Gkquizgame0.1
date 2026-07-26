@@ -1,6 +1,6 @@
 {
   "ENV_NAME": "prod",
-  "API_BASE_URL": "https://api.your-backend.example.com",
+  "API_BASE_URL": "https://gkquizgame0-1-2.onrender.com",
   "ENABLE_NETWORK_LOGGING": false,
   "LOG_LEVEL": "warning"
 }
