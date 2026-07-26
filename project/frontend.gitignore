@@ -1,0 +1,19 @@
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+*.g.dart
+*.freezed.dart
+.DS_Store
+
+# Platform folders (android/, ios/, web/, etc.) are intentionally NOT
+# ignored here - this handoff only included lib/, so once you run
+# `flutter create .` to regenerate them, they should be committed.

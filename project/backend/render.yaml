@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: gk-quiz-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      # Provision a Redis instance first (Render Redis, Upstash, etc.) and
+      # paste its connection URL here — required for caching, the
+      # matchmaking queue, and the Socket.IO adapter. Use rediss:// if the
+      # provider requires TLS.
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
