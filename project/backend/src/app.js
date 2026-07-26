@@ -127,6 +127,7 @@ async function checkDatabase() {
 }
 
 async function checkRedis() {
+  if (!redis.enabled) return 'disabled'; // REDIS_URL not set — running on the in-memory fallback
   try {
     await redis.ping();
     return 'ok';
@@ -160,7 +161,7 @@ async function checkRedis() {
  *                 uptimeSeconds: { type: integer, example: 3600 }
  *                 environment: { type: string, example: production }
  *                 database: { type: string, enum: [ok, unreachable] }
- *                 redis: { type: string, enum: [ok, unreachable] }
+ *                 redis: { type: string, enum: [ok, unreachable, disabled] }
  */
 app.get(
   '/health',
@@ -185,10 +186,12 @@ app.get(
  *     tags: [Health]
  *     summary: Readiness probe
  *     description: >
- *       Checks whether this instance can actually serve traffic — both the
- *       database and Redis must be reachable. Returns 503 if either is down,
- *       so an orchestrator can stop routing requests here without restarting
- *       the process. Excluded from access logs and not rate-limited.
+ *       Checks whether this instance can actually serve traffic. The database
+ *       must be reachable. Redis is optional — 'disabled' (REDIS_URL not set)
+ *       counts as healthy, but a configured Redis that's unreachable does not.
+ *       Returns 503 if the instance isn't ready, so an orchestrator can stop
+ *       routing requests here without restarting the process. Excluded from
+ *       access logs and not rate-limited.
  *     security: []
  *     responses:
  *       200:
@@ -201,7 +204,7 @@ app.get(
  *                 status: { type: string, example: ok }
  *                 timestamp: { type: string, format: date-time }
  *                 database: { type: string, enum: [ok, unreachable] }
- *                 redis: { type: string, enum: [ok, unreachable] }
+ *                 redis: { type: string, enum: [ok, unreachable, disabled] }
  *       503:
  *         description: Not ready — database and/or Redis is unreachable
  *         content:
@@ -212,13 +215,15 @@ app.get(
  *                 status: { type: string, example: unavailable }
  *                 timestamp: { type: string, format: date-time }
  *                 database: { type: string, enum: [ok, unreachable] }
- *                 redis: { type: string, enum: [ok, unreachable] }
+ *                 redis: { type: string, enum: [ok, unreachable, disabled] }
  */
 app.get(
   '/ready',
   asyncHandler(async (req, res) => {
     const [database, redisStatus] = await Promise.all([checkDatabase(), checkRedis()]);
-    const ready = database === 'ok' && redisStatus === 'ok';
+    // Redis is optional: 'disabled' (REDIS_URL not set) is a healthy state.
+    // Only an actually-configured-but-unreachable Redis should fail readiness.
+    const ready = database === 'ok' && redisStatus !== 'unreachable';
 
     res.status(ready ? 200 : 503).json({
       status: ready ? 'ok' : 'unavailable',

@@ -60,6 +60,19 @@ describe('GET /health', () => {
 
     expect(res.status).not.toBe(401);
   });
+
+  it('returns redis: disabled and never pings when Redis is not configured', async () => {
+    redis.enabled = false;
+    db.query.mockResolvedValueOnce({ rows: [], rowCount: 1 });
+
+    const res = await request(app).get('/health');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ status: 'ok', database: 'ok', redis: 'disabled' });
+    expect(redis.ping).not.toHaveBeenCalled();
+
+    redis.enabled = true; // restore for subsequent tests
+  });
 });
 
 describe('GET /ready', () => {
@@ -101,6 +114,19 @@ describe('GET /ready', () => {
 
     expect(res.status).toBe(503);
     expect(res.body.status).toBe('unavailable');
+  });
+
+  it('returns 200 when Redis is disabled and the database is reachable', async () => {
+    redis.enabled = false;
+    db.query.mockResolvedValueOnce({ rows: [], rowCount: 1 });
+
+    const res = await request(app).get('/ready');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ status: 'ok', database: 'ok', redis: 'disabled' });
+    expect(redis.ping).not.toHaveBeenCalled();
+
+    redis.enabled = true; // restore for subsequent tests
   });
 
   it('does not require authentication', async () => {

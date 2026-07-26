@@ -17,7 +17,7 @@ const io = new Server(server, {
   },
 });
 
-// --- Socket.IO Redis adapter -----------------------------------------------
+// --- Socket.IO Redis adapter (optional) -------------------------------
 // Broadcasts (io.to(room).emit(...)) and cross-socket events are relayed
 // through Redis pub/sub instead of only within this process's memory. That's
 // what makes it safe to run more than one instance of this server behind a
@@ -25,12 +25,25 @@ const io = new Server(server, {
 // emitted from instance B. The adapter needs two *dedicated* connections
 // (a subscriber can't run normal commands), so we duplicate the shared
 // client rather than reuse it directly.
-const pubClient = redis.duplicate();
-const subClient = redis.duplicate();
-pubClient.on('error', (err) => logger.error('Redis (Socket.IO pub) error', { message: err.message }));
-subClient.on('error', (err) => logger.error('Redis (Socket.IO sub) error', { message: err.message }));
+//
+// Without Redis, Socket.IO just uses its built-in in-memory adapter, which
+// works fine as long as this runs as a single instance.
+let pubClient;
+let subClient;
 
-io.adapter(createAdapter(pubClient, subClient));
+if (redis.enabled) {
+  pubClient = redis.duplicate();
+  subClient = redis.duplicate();
+  pubClient.on('error', (err) => logger.error('Redis (Socket.IO pub) error', { message: err.message }));
+  subClient.on('error', (err) => logger.error('Redis (Socket.IO sub) error', { message: err.message }));
+
+  io.adapter(createAdapter(pubClient, subClient));
+} else {
+  logger.warn(
+    'Redis disabled — Socket.IO is using its default in-memory adapter (fine for a single instance, ' +
+      'but events will not be relayed across multiple server instances).'
+  );
+}
 
 initSockets(io);
 
@@ -63,7 +76,9 @@ async function shutdown(signal) {
     });
 
     await pool.end(); // close all Postgres connections cleanly
-    await Promise.allSettled([redis.quit(), pubClient.quit(), subClient.quit()]);
+    await Promise.allSettled(
+      [redis.quit(), pubClient?.quit(), subClient?.quit()].filter(Boolean)
+    );
 
     clearTimeout(forceExitTimer);
     logger.info('Shutdown complete');

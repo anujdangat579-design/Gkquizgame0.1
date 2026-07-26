@@ -16,7 +16,12 @@ const env = {
     .map((s) => s.trim())
     .filter(Boolean),
   databaseUrl: required('DATABASE_URL'),
-  redisUrl: required('REDIS_URL'),
+  // Optional. Caching, OTP storage, matchmaking, and the Socket.IO adapter
+  // all fall back to in-memory implementations (see config/redis.js) when
+  // this isn't set — the server starts and every API works normally on a
+  // single instance either way. Set it to enable real Redis.
+  redisUrl: process.env.REDIS_URL || '',
+  redisEnabled: Boolean(process.env.REDIS_URL),
   cache: {
     questionsTtlSeconds: parseInt(process.env.CACHE_QUESTIONS_TTL_SECONDS || '60', 10),
     leaderboardTtlSeconds: parseInt(process.env.CACHE_LEADERBOARD_TTL_SECONDS || '30', 10),

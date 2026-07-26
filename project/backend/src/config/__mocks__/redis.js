@@ -14,6 +14,11 @@ function createRedisMock() {
   const store = new Map();
 
   return {
+    // Tests set REDIS_URL in setupEnvVars.js, so the real module would
+    // construct an enabled client — this mock mirrors that by default.
+    // Individual tests can override (`redis.enabled = false`) to exercise
+    // the disabled/in-memory-fallback path.
+    enabled: true,
     get: jest.fn(async (key) => (store.has(key) ? store.get(key) : null)),
     set: jest.fn(async (key, value) => {
       store.set(key, value);
